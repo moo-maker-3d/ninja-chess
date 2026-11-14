@@ -8,6 +8,9 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Ninja Chess">
   <meta name="theme-color" content="#1b3d2a">
+  <meta name="screen-orientation" content="portrait">
+  <link rel="manifest" href="data:application/manifest+json,%7B%22name%22%3A%22Ninja%20Chess%22%2C%22short_name%22%3A%22Ninja%20Chess%22%2C%22description%22%3A%22A%20Good%20kNight%20game%20%5Cu2014%20The%20world%20of%20Chessmen%22%2C%22start_url%22%3A%22.%2F%22%2C%22scope%22%3A%22.%2F%22%2C%22display%22%3A%22standalone%22%2C%22orientation%22%3A%22portrait%22%2C%22background_color%22%3A%22%231b3d2a%22%2C%22theme_color%22%3A%22%231b3d2a%22%2C%22icons%22%3A%5B%5D%7D">
+  <link rel="manifest" href="manifest.json">
   <meta name="format-detection" content="telephone=no">
   <title>Ninja Chess</title>
   <!--
@@ -43,7 +46,10 @@
 html, body {
   margin: 0;
   padding: 0;
+  width: 100%;
   height: 100%;
+  height: 100dvh;
+  max-height: 100dvh;
   background: var(--felt);
   color: var(--cream);
   font-family: "Trebuchet MS", "Avenir Next", "Segoe UI", system-ui, sans-serif;
@@ -51,9 +57,11 @@ html, body {
   user-select: none;
   -webkit-user-select: none;
   overflow: hidden;
+  overscroll-behavior: none;
 }
 body {
   padding: var(--safe-t) var(--safe-r) var(--safe-b) var(--safe-l);
+  box-sizing: border-box;
 }
 
 h1, h2, p, button { margin: 0; }
@@ -62,6 +70,9 @@ h1, h2, p, button { margin: 0; }
   display: none;
   height: 100%;
   width: 100%;
+  min-height: 0;
+  min-width: 0;
+  overflow: hidden;
 }
 .screen.active { display: flex; flex-direction: column; }
 
@@ -69,11 +80,12 @@ h1, h2, p, button { margin: 0; }
 #start, #levels {
   align-items: center;
   justify-content: center;
-  gap: 22px;
+  gap: 18px;
   background:
     radial-gradient(ellipse at 50% 0%, #2c5a3e 0%, var(--felt) 55%, var(--felt-dark) 100%);
-  padding: 24px;
+  padding: 16px 24px;
   text-align: center;
+  overflow: auto;
 }
 .logo {
   width: min(160px, 28vw);
@@ -123,28 +135,31 @@ h1, h2, p, button { margin: 0; }
   padding: 0 16px;
 }
 
-/* ---- Game ---- */
+/* ---- Game (portrait is the primary layout) ---- */
 #game {
   background:
     radial-gradient(ellipse at 50% 30%, #2c5a3e 0%, var(--felt) 60%, var(--felt-dark) 100%);
+  height: 100%;
+  min-height: 0;
 }
 .topbar {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 8px 12px 4px;
-  min-height: 64px;
+  padding: 6px 10px 4px;
+  flex: 0 0 auto;
   flex-shrink: 0;
 }
 .banner {
   display: none;
-  min-width: min(640px, 92vw);
-  padding: 10px 24px;
-  border-radius: 18px;
+  width: min(640px, 96vw);
+  min-width: 0;
+  padding: 8px 16px;
+  border-radius: 16px;
   border: 3px solid var(--ink);
   background: var(--cream);
   color: var(--ink);
-  font-size: clamp(26px, 4.5vw, 40px);
+  font-size: clamp(22px, 3.8vw, 34px);
   font-weight: 800;
   text-align: center;
   box-shadow: 0 6px 0 rgba(0,0,0,.2);
@@ -157,19 +172,30 @@ h1, h2, p, button { margin: 0; }
 .banner.listen { background: #b9dcff; }
 
 .table {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 4px 10px;
+  flex: 1 1 auto;
+  display: grid;
+  place-items: center;
+  padding: 4px 8px;
   min-height: 0;
+  min-width: 0;
+  container-type: size;
 }
 .board-wrap {
   position: relative;
-  width: min(calc(100vw - 20px), calc(100dvh - 210px));
-  max-width: 980px;
-  aspect-ratio: 1;
+  /* Fallback if container queries are unavailable */
+  width: min(100%, calc(100dvh - 16.5rem));
+  aspect-ratio: 1 / 1;
+  max-width: 100%;
+  max-height: 100%;
   filter: drop-shadow(0 14px 24px rgba(0,0,0,.45));
+}
+@supports (width: 1cqh) {
+  .board-wrap {
+    width: min(100cqw, 100cqh);
+    height: min(100cqw, 100cqh);
+    max-width: 100%;
+    max-height: 100%;
+  }
 }
 .board-frame {
   position: absolute;
@@ -264,9 +290,11 @@ h1, h2, p, button { margin: 0; }
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  gap: 10px;
-  padding: 8px 10px 12px;
+  gap: 8px;
+  padding: 6px 8px 8px;
+  flex: 0 0 auto;
   flex-shrink: 0;
+  max-width: 100%;
 }
 .ctrl {
   display: flex;
@@ -274,9 +302,9 @@ h1, h2, p, button { margin: 0; }
   align-items: center;
   justify-content: center;
   gap: 2px;
-  min-width: 86px;
-  min-height: 72px;
-  padding: 8px 10px;
+  min-width: 72px;
+  min-height: 64px;
+  padding: 6px 8px;
   border: 3px solid var(--ink);
   border-radius: 18px;
   background: var(--btn);
@@ -329,7 +357,9 @@ h1, h2, p, button { margin: 0; }
   align-items: center;
   justify-content: center;
   z-index: 20;
-  padding: 24px;
+  padding: max(12px, var(--safe-t)) max(12px, var(--safe-r)) max(12px, var(--safe-b)) max(12px, var(--safe-l));
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
 }
 .overlay.show { display: flex; }
 .panel {
@@ -337,8 +367,10 @@ h1, h2, p, button { margin: 0; }
   color: var(--ink);
   border: 4px solid var(--ink);
   border-radius: 28px;
-  padding: 28px 24px;
+  padding: 24px 20px;
   width: min(560px, 94vw);
+  max-height: 100%;
+  overflow: auto;
   text-align: center;
   box-shadow: var(--shadow);
 }
@@ -389,36 +421,6 @@ h1, h2, p, button { margin: 0; }
   pointer-events: none;
 }
 
-@media (orientation: landscape) {
-  #game.active {
-    flex-direction: row;
-    align-items: stretch;
-  }
-  .topbar {
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    z-index: 5;
-    min-height: 52px;
-    pointer-events: none;
-  }
-  .topbar .banner { pointer-events: auto; }
-  .table {
-    flex: 1;
-    padding: 8px 8px 8px 12px;
-  }
-  .board-wrap {
-    width: min(calc(100dvh - 16px), calc(100vw - 230px));
-  }
-  .controls {
-    flex-direction: column;
-    justify-content: center;
-    width: 210px;
-    padding: 56px 10px 12px;
-  }
-  .ctrl { width: 180px; flex-direction: row; gap: 10px; min-height: 60px; justify-content: flex-start; padding-left: 16px; }
-  .vol-wrap { flex-direction: column; width: 180px; }
-  .vol-wrap input[type="range"] { width: 150px; }
-}
 
 /* ---- 3D table + scene worlds (procedural, no external assets) ---- */
 .scene-bg {
@@ -657,11 +659,6 @@ h1, h2, p, button { margin: 0; }
   margin-bottom: 6px;
 }
 
-@media (orientation: landscape) {
-  .scene-bg { position: absolute; }
-  .flag-badge.tl { top: 44px; }
-  .flag-badge.tr { top: 44px; }
-}
 
 /* ---- 3D viewport, clocks, animation toggle ---- */
 .view3d {
@@ -683,12 +680,13 @@ h1, h2, p, button { margin: 0; }
 .topbar {
   flex-direction: column;
   gap: 6px;
+  width: 100%;
 }
 .clocks {
   display: flex;
   align-items: stretch;
   justify-content: center;
-  gap: 12px;
+  gap: 10px;
   width: min(640px, 96vw);
 }
 .clocks.off { opacity: 0.55; }
@@ -698,7 +696,7 @@ h1, h2, p, button { margin: 0; }
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-height: 58px;
+  min-height: 52px;
   padding: 6px 10px;
   border: 3px solid var(--ink);
   border-radius: 16px;
@@ -731,13 +729,173 @@ h1, h2, p, button { margin: 0; }
 }
 .time-btn.picked { background: var(--gold); box-shadow: 0 0 0 4px #c9a227; }
 
-@media (orientation: landscape) {
-  .topbar { flex-direction: row; justify-content: space-between; padding: 6px 220px 6px 12px; }
-  .clocks { width: auto; min-width: 280px; }
-  .clock { min-width: 110px; }
-}
 @media (prefers-reduced-motion: reduce) {
   .slash, .burst, .fx-piece, .fx-icon { animation: none !important; }
+}
+
+/* ---- Compact portrait chrome on shorter iPads ---- */
+@media (orientation: portrait) and (max-height: 1100px) {
+  .logo { width: min(120px, 22vw); height: min(120px, 22vw); }
+  .title { font-size: clamp(40px, 7vw, 64px); }
+  .big-btn { min-height: 72px; }
+  .clock { min-height: 46px; }
+  .clock .clock-time { font-size: clamp(20px, 3.6vw, 26px); }
+  .banner { padding: 6px 14px; font-size: clamp(20px, 3.4vw, 28px); }
+  .ctrl { min-height: 56px; min-width: 68px; font-size: 13px; }
+  .ctrl svg { width: 26px; height: 26px; }
+  .vol-wrap { padding: 6px 10px; }
+}
+
+/* ---- Landscape: board on the left, hud column on the right ---- */
+@media (orientation: landscape) {
+  #start.screen.active, #levels.screen.active {
+    gap: 8px;
+    padding: 8px 16px;
+    justify-content: center;
+  }
+  #start .logo, #levels .logo {
+    width: min(72px, 16dvh);
+    height: min(72px, 16dvh);
+  }
+  #start .title, #levels .title { font-size: clamp(28px, 7dvh, 48px); }
+  #start .tagline, #start .worldline, #start .subtitle,
+  #levels .subtitle { font-size: clamp(14px, 3.2dvh, 20px); margin: 0; }
+  #start .big-btn, #levels .big-btn {
+    min-height: 52px;
+    width: min(440px, 80vw);
+    font-size: clamp(18px, 3.4dvh, 26px);
+    padding: 8px 18px;
+    gap: 10px;
+  }
+  #start .big-btn svg, #levels .big-btn svg { width: 32px; height: 32px; }
+  #start .row-btns, #levels .row-btns { gap: 8px; }
+  #start .credit { position: static; margin-top: 4px; }
+
+  #game.screen.active {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) min(300px, 34vw);
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+      "board top"
+      "board controls";
+    align-items: stretch;
+    flex-direction: unset;
+    height: 100%;
+    min-height: 0;
+  }
+  #game.screen.active .table {
+    grid-area: board;
+    height: 100%;
+    min-height: 0;
+    min-width: 0;
+    padding: 8px 6px 8px 8px;
+  }
+  #game.screen.active .topbar {
+    grid-area: top;
+    position: relative;
+    left: auto;
+    right: auto;
+    top: auto;
+    width: 100%;
+    pointer-events: auto;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: stretch;
+    gap: 8px;
+    padding: 8px 10px 4px;
+  }
+  #game.screen.active .clocks {
+    width: 100%;
+    min-width: 0;
+    flex-direction: column;
+    gap: 8px;
+  }
+  #game.screen.active .clock { min-width: 0; min-height: 48px; width: 100%; }
+  #game.screen.active .banner,
+  #game.screen.active .banner.show {
+    width: 100%;
+    min-width: 0;
+    font-size: clamp(18px, 3.2dvh, 26px);
+    padding: 8px 10px;
+  }
+  #game.screen.active .controls {
+    grid-area: controls;
+    flex-direction: column;
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    align-items: stretch;
+    width: 100%;
+    max-width: none;
+    min-height: 0;
+    overflow: auto;
+    padding: 4px 10px 8px;
+    gap: 6px;
+  }
+  #game.screen.active .ctrl {
+    width: 100%;
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 10px;
+    min-height: 44px;
+    min-width: 0;
+    padding: 6px 12px;
+    font-size: 15px;
+  }
+  #game.screen.active .ctrl svg { width: 24px; height: 24px; }
+  #game.screen.active .vol-wrap {
+    flex-direction: column;
+    width: 100%;
+    gap: 6px;
+  }
+  #game.screen.active .vol-wrap input[type="range"] { width: 100%; }
+
+  .overlay {
+    padding: 8px max(8px, var(--safe-r)) 8px max(8px, var(--safe-l));
+  }
+  .panel {
+    width: min(860px, 96vw);
+    padding: 14px 18px;
+  }
+  .panel h2 { font-size: clamp(22px, 5dvh, 36px); margin-bottom: 4px; }
+  .panel p { font-size: 16px; margin-bottom: 8px; }
+  .scene-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+  .scene-btn { min-height: 74px; font-size: 15px; padding: 8px; }
+  .scene-swatch { height: 24px; }
+  #scene-pick .panel { width: min(860px, 96vw); }
+  .time-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 6px 0 10px; }
+  .time-btn { min-height: 44px; font-size: 18px; }
+  .promo-grid { grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  #promo .panel { overflow: hidden; }
+  .promo-btn,
+  .promo-btn.queen {
+    grid-column: auto;
+    flex-direction: row;
+    gap: 8px;
+    min-height: 72px;
+    padding: 8px 10px;
+    font-size: 16px;
+    overflow: hidden;
+  }
+  .promo-btn svg,
+  .promo-btn .piece-preview,
+  .promo-btn.queen .piece-preview,
+  .promo-btn.queen svg {
+    width: 44px !important;
+    height: 44px !important;
+    flex-shrink: 0;
+    overflow: hidden;
+  }
+  .promo-btn span { line-height: 1.1; }
+  .row-btns .big-btn { min-height: 52px; width: min(420px, 90%); font-size: 20px; }
+}
+
+@media (orientation: landscape) and (max-height: 700px) {
+  #game.screen.active .ctrl { min-height: 36px; font-size: 13px; padding: 4px 10px; }
+  #game.screen.active .clock { min-height: 40px; }
+  #start .big-btn, #levels .big-btn { min-height: 44px; }
 }
 
   </style>
@@ -2633,8 +2791,8 @@ h1, h2, p, button { margin: 0; }
   function resetView() {
     cam.theta = camHome.theta;
     cam.phi = camHome.phi;
-    cam.radius = camHome.radius;
     applyCam();
+    fitCamera();
   }
 
   function setFlipped(v) {
@@ -3037,15 +3195,37 @@ h1, h2, p, button { margin: 0; }
     }
   }
 
+  function fitCamera() {
+    if (!camera) return;
+    const aspect = Math.max(0.25, camera.aspect || 1);
+    const fov = camera.fov * Math.PI / 180;
+    const half = 5.5;
+    const pad = 1.12;
+    const distV = (half * pad) / Math.tan(fov / 2);
+    const distH = (half * pad) / (Math.tan(fov / 2) * aspect);
+    const slant = Math.max(0.5, Math.sin(cam.phi || 0.98));
+    const fitR = Math.max(distV, distH) / slant;
+    cam.radius = Math.max(8, Math.min(18, fitR));
+    camHome.radius = cam.radius;
+    applyCam();
+  }
+
   function resize() {
     if (!renderer || !container) return;
-    const w = Math.max(64, container.clientWidth);
-    const h = Math.max(64, container.clientHeight);
+    const w = Math.max(64, Math.round(container.clientWidth));
+    const h = Math.max(64, Math.round(container.clientHeight));
     renderer.setPixelRatio(Math.min(2, root.devicePixelRatio || 1));
     renderer.setSize(w, h, false);
-    camera.aspect = w / h;
+    camera.aspect = w / Math.max(1, h);
     camera.updateProjectionMatrix();
+    fitCamera();
     shadowDirty = true;
+  }
+
+  function onViewportChange() {
+    resize();
+    setTimeout(resize, 60);
+    setTimeout(resize, 280);
   }
 
   function init(el, opts) {
@@ -3114,10 +3294,14 @@ h1, h2, p, button { margin: 0; }
     canvas.addEventListener('touchmove', movePointer, { passive: false });
     canvas.addEventListener('touchend', endPointer);
     canvas.addEventListener('wheel', onWheel, { passive: false });
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', onViewportChange);
+    window.addEventListener('orientationchange', onViewportChange);
+    if (root.visualViewport) {
+      root.visualViewport.addEventListener('resize', onViewportChange);
+    }
 
     if (window.ResizeObserver) {
-      new ResizeObserver(resize).observe(container);
+      new ResizeObserver(function () { resize(); }).observe(container);
     }
 
     active = true;
@@ -3161,6 +3345,7 @@ h1, h2, p, button { margin: 0; }
     setAnimations: setAnimations,
     resetView: resetView,
     resize: resize,
+    fitCamera: fitCamera,
     dispose: dispose,
     renderOnce: renderOnce,
     trickDuration: trickDuration
@@ -4931,6 +5116,20 @@ const SFX = (function () {
       if (document.hidden) pauseClocks();
       else if ($('game') && $('game').classList.contains('active')) resumeClocksIfNeeded();
     });
+    function refitView() {
+      if (rootView3D()) {
+        View3D.resize();
+        requestAnimationFrame(function () { View3D.resize(); });
+      }
+    }
+    window.addEventListener('resize', refitView);
+    window.addEventListener('orientationchange', function () {
+      setTimeout(refitView, 60);
+      setTimeout(refitView, 280);
+    });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', refitView);
+    }
     $('btn-mic').addEventListener('click', toggleMic);
     $('vol').addEventListener('input', function () {
       state.volume = parseInt($('vol').value, 10) / 100;
@@ -5031,6 +5230,16 @@ const SFX = (function () {
       applyScene(params.get('scene') || state.scene || 'classic');
       state.selected = ChessEngine.square(4, 1); /* e2 */
       pauseClocks();
+      if (clockTimer) { clearInterval(clockTimer); clockTimer = null; }
+      if (state.clock && !state.clock.off) {
+        const fresh = ChessClock.create(state.clockKey || '10+5');
+        state.clock.white = fresh.white;
+        state.clock.black = fresh.black;
+        state.clock.running = false;
+        state.clock.lastTs = 0;
+        state.clock.flagged = null;
+        updateClockUI();
+      }
       render();
       if (rootView3D()) {
         View3D.resetView();

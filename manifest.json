@@ -1,0 +1,12 @@
+{
+  "name": "Ninja Chess",
+  "short_name": "Ninja Chess",
+  "description": "A Good kNight game \u2014 The world of Chessmen",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#1b3d2a",
+  "theme_color": "#1b3d2a",
+  "icons": []
+}
